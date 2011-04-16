@@ -3,7 +3,7 @@
 """JQuery-Ajax Autocomplete fields for Django Forms"""
 __version__ = "1.3"
 __author__ = "Millioner"
-__contact__ = "crucialfelix@gmail.com"
+__contact__ = "millioner.bbb@gmail.com"
 __homepage__ = "https://github.com/millioner/django-ajax-select"
 
 from django.conf import settings
@@ -117,38 +117,39 @@ def get_lookup(channel):
     except (KeyError, AttributeError):
         raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS not configured correctly for %r" % channel)
 
-    if isinstance(lookup_label,dict):
+    if isinstance(lookup_label, dict):
         # 'channel' : dict(model='app.model', search_field='title' )
         # generate a simple channel dynamically
-        return make_channel( lookup_label['model'], lookup_label['search_field'] )
+        return make_channel(lookup_label['model'], lookup_label['search_field'])
     else:
         # 'channel' : ('app.module','LookupClass')
         # from app.module load LookupClass and instantiate
-        lookup_module = __import__( lookup_label[0],{},{},[''])
-        lookup_class = getattr(lookup_module,lookup_label[1] )
+        lookup_module = __import__(lookup_label[0], {}, {}, [''])
+        lookup_class = getattr(lookup_module, lookup_label[1])
         return lookup_class()
 
 
-def make_channel(app_model,search_field):
+def make_channel(app_model, search_field):
     """ used in get_lookup
         app_model :   app_name.model_name
-        search_field :  the field to search against and to display in search results """
+        search_field :  the field to search against and to display in search results
+    """
     from django.db import models
     app_label, model_name = app_model.split(".")
     model = models.get_model(app_label, model_name)
 
     class AjaxChannel(object):
 
-        def get_query(self,q,request):
+        def get_query(self, q, request):
             """ return a query set searching for the query string q """
             kwargs = { "%s__icontains" % search_field : q }
             return model.objects.filter(**kwargs).order_by(search_field)
 
-        def format_item(self,obj):
+        def format_item(self, obj):
             """ format item for simple list of currently selected items """
             return unicode(obj)
 
-        def format_result(self,obj):
+        def format_result(self, obj):
             """ format search result for the drop down of search results. may include html """
             return unicode(obj)
 
