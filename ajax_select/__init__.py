@@ -14,7 +14,7 @@ from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 
-def make_ajax_form(model,fieldlist,superclass=ModelForm):
+def make_ajax_form(model, fieldlist, superclass=ModelForm):
     """
         this will create a ModelForm subclass inserting
             AutoCompleteSelectMultipleField (many to many),
@@ -40,17 +40,17 @@ def make_ajax_form(model,fieldlist,superclass=ModelForm):
             pass
         setattr(Meta, 'model', model)
 
-    for model_fieldname,channel in fieldlist.iteritems():
-        f = make_ajax_field(model,model_fieldname,channel)
+    for model_fieldname, channel in fieldlist.iteritems():
+        f = make_ajax_field(model, model_fieldname, channel)
         
         TheForm.declared_fields[model_fieldname] = f
         TheForm.base_fields[model_fieldname] = f
-        setattr(TheForm,model_fieldname,f)
+        setattr(TheForm, model_fieldname, f)
 
     return TheForm
 
 
-def make_ajax_field(model,model_fieldname,channel,**kwargs):
+def make_ajax_field(model, model_fieldname, channel, **kwargs):
     """ makes an ajax select / multiple select / autocomplete field
         copying the label and help text from the model's db field
     
@@ -85,29 +85,11 @@ def make_ajax_field(model,model_fieldname,channel,**kwargs):
         required = not field.blank
 
     if isinstance(field, ManyToManyField):
-        f = AutoCompleteSelectMultipleField(
-            channel,
-            required=required,
-            help_text=help_text,
-            label=label,
-            **kwargs
-            )
+        f = AutoCompleteSelectMultipleField(channel, required=required, help_text=help_text, label=label, **kwargs)
     elif isinstance(field, ForeignKey):
-        f = AutoCompleteSelectField(
-            channel,
-            required=required,
-            help_text=help_text,
-            label=label,
-            **kwargs
-            )
+        f = AutoCompleteSelectField(channel, required=required, help_text=help_text, label=label, **kwargs)
     else:
-        f = AutoCompleteField(
-            channel,
-            required=required,
-            help_text=help_text,
-            label=label,
-            **kwargs
-            )
+        f = AutoCompleteField(channel, required=required, help_text=help_text, label=label, **kwargs)
     return f
 
 def get_lookup(channel):
