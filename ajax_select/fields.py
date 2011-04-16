@@ -14,6 +14,9 @@ from django.utils.translation import ugettext as _
 
 
 class AutoCompleteSelectWidget(forms.widgets.TextInput):
+    class Media:
+        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     """  widget to select a model """
     
@@ -67,8 +70,10 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
 
 
 class AutoCompleteSelectField(forms.fields.CharField):
-
     """  form field to select a model for a ForeignKey db field """
+    class Media:
+        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     channel = None
 
@@ -100,8 +105,10 @@ class AutoCompleteSelectField(forms.fields.CharField):
 
 
 class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
-
     """ widget to select multiple models """
+    class Media:
+        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
     
     add_link = None
     
@@ -198,6 +205,10 @@ class AutoCompleteWidget(forms.TextInput):
     Widget to select a search result and enter the result as raw text in the text input field.
     the user may also simply enter text and ignore any auto complete suggestions.
     """
+    class Media:
+        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
+        
     channel = None
     help_text = ''
     html_id = ''

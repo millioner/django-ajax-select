@@ -22,8 +22,5 @@ class BookAdmin(admin.ModelAdmin):
     list_display = ('title',)
     search_fields = ('title',)
     form = make_ajax_form(Book, { 'authors': 'author', 'publisher': 'publisher'})
-    class Media:
-        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
-        css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
 admin.site.register(Book, BookAdmin)

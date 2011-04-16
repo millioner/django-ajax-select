@@ -1,10 +1,10 @@
 ### -*- coding: utf-8 -*- ####################################################
 
 """JQuery-Ajax Autocomplete fields for Django Forms"""
-__version__ = "1.1.4"
-__author__ = "crucialfelix"
+__version__ = "1.3"
+__author__ = "Millioner"
 __contact__ = "crucialfelix@gmail.com"
-__homepage__ = "http://code.google.com/p/django-ajax-selects/"
+__homepage__ = "https://github.com/millioner/django-ajax-select"
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -75,7 +75,7 @@ def make_ajax_field(model,model_fieldname,channel,**kwargs):
     if kwargs.has_key('help_text'):
         help_text = kwargs.pop('help_text')
     else:
-        if isinstance(field.help_text,basestring):
+        if isinstance(field.help_text, basestring):
             help_text = _(field.help_text)
         else:
             help_text = field.help_text
@@ -84,7 +84,7 @@ def make_ajax_field(model,model_fieldname,channel,**kwargs):
     else:
         required = not field.blank
 
-    if isinstance(field,ManyToManyField):
+    if isinstance(field, ManyToManyField):
         f = AutoCompleteSelectMultipleField(
             channel,
             required=required,
@@ -92,7 +92,7 @@ def make_ajax_field(model,model_fieldname,channel,**kwargs):
             label=label,
             **kwargs
             )
-    elif isinstance(field,ForeignKey):
+    elif isinstance(field, ForeignKey):
         f = AutoCompleteSelectField(
             channel,
             required=required,
