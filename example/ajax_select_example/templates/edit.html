@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    <form action="{% url save_book %}" method="post">
+    <form action="{% url save_book object.pk %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" />
