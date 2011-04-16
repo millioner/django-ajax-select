@@ -30,7 +30,7 @@ input.ac_loading {
 /* change the X to an image */
 .results_on_deck .iconic, .results_on_deck .iconic:hover {
     float: left;
-    background: url(../shared/images/Trashcan.gif) no-repeat;
+    background: url(../images/trash.png) no-repeat;
     color: transparent;
     border: 0;
 }

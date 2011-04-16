@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+{% load i18n %}
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>{% trans 'Django-ajax-select example project' %}</title>
+  {% block style %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common.css" media="screen" />
+  {% endblock %}
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+</head>
+
+<body>
+  <div id="visual-portal-wrapper">
+    <div id="portal-header">
+
+    </div>
+
+    <div id="content">
+      {% block content %}The content goes here.{% endblock %}
+    </div>
+
+  </div>
+
+  {% block script %}
+
+  {% endblock %}
+</body>
+</html>

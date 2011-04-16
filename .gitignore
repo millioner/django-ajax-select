@@ -4,6 +4,8 @@
 # *.[oa]
 
 *~
+example/static/*
+example/db
 
 #local settings
 local_settings.py
