@@ -14,12 +14,11 @@ from django.utils.translation import ugettext as _
 
 
 class AutoCompleteSelectWidget(forms.widgets.TextInput):
+    """  widget to select a model """
     class Media:
         js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
-    """  widget to select a model """
-    
     add_link = None
     
     def __init__(self, channel, help_text='', *args, **kw):
