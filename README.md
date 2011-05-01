@@ -184,7 +184,7 @@ Dual licensed under the MIT and GPL licenses:
 
 ##Changelog
 
-1.2
-Js files was refactored
-All static content is collected into 'static' folder
-Example project was written
+1.2 -
+Js files was refactored.
+All static content is collected into 'static' folder.
+And example project was written.
