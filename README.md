@@ -8,11 +8,12 @@ User experience
 
 selecting...
 
-<img src='http://crucial-systems.com/crucialwww/uploads/posts/selecting.png'/>
+<img src='https://github.com/millioner/django-ajax-select/blob/master/example/ajax_select_example/static/selecting.png?raw=true'/>
+![Item selecting](/millioner/django-ajax-select/blob/master/example/ajax_select_example/static/selecting.png)
 
 selected.
 
-![Item selected](http://crucial-systems.com/crucialwww/uploads/posts/selected.png)
+![Item selected](https://github.com/millioner/django-ajax-select/blob/master/example/ajax_select_example/static/selected.png)
 
 The user is presented with a text field. They type a search term or a few letters of a name they are looking for,
 an ajax request is sent to the server, a search channel returns possible results.
