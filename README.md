@@ -8,8 +8,7 @@ User experience
 
 selecting...
 
-![Selecting process][1]
-[1]: http://crucial-systems.com/crucialwww/uploads/posts/selecting.png
+<img src='http://crucial-systems.com/crucialwww/uploads/posts/selecting.png'/>
 
 selected.
 
