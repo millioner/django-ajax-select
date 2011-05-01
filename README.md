@@ -1,14 +1,15 @@
 It is a fork of Chris Sattinger's  django-ajax-selects (http://code.google.com/p/django-ajax-selects/)
 
 Enables editing of `ForeignKey`, `ManyToMany` and simple text fields using the Autocomplete - `jQuery` plugin.
-django-ajax-selects will work in any normal form as well as in the admin.
+django-ajax-selects will work in any normal form in the admin as well.
 
 User experience
 ===============
 
 selecting...
 
-![Selecting process](http://crucial-systems.com/crucialwww/uploads/posts/selecting.png)
+![Selecting process][1]
+[1]: http://crucial-systems.com/crucialwww/uploads/posts/selecting.png
 
 selected.
 
