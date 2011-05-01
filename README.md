@@ -6,11 +6,11 @@ django-ajax-selects will work in any normal form in the admin as well.
 User experience
 ===============
 
-selecting...
+selecting:
 
 <img src='http://github.com/millioner/django-ajax-select/blob/master/example/ajax_select_example/static/selecting.png?raw=true'/>
 
-selected.
+selected:
 
 <img src='http://github.com/millioner/django-ajax-select/blob/master/example/ajax_select_example/static/selected.png?raw=true'/>
 
