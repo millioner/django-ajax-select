@@ -1,0 +1,3 @@
+include README.md
+recursive-include ajax_select/static *
+recursive-include ajax_select/templates *
