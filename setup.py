@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(name='django-ajax-selects',
     version='1.1.4',
@@ -8,7 +8,7 @@ setup(name='django-ajax-selects',
     author='Millioner',
     author_email='millioner.bbb@gmail.com',
     url='',
-    packages=find_packages(exclude='example'),
+    packages=['ajax_select', ],
     include_package_data = True,    # include everything in source control
     zip_safe=False,
     classifiers = [
