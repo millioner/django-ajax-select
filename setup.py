@@ -8,7 +8,7 @@ setup(name='django-ajax-selects',
     author='Millioner',
     author_email='millioner.bbb@gmail.com',
     url='',
-    packages=find_packages(),
+    packages=find_packages(exclude='example'),
     include_package_data = True,    # include everything in source control
     zip_safe=False,
     classifiers = [
