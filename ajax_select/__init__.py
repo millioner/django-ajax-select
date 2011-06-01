@@ -124,7 +124,7 @@ def make_channel(app_model, search_field):
 
         def get_query(self, q, request):
             """ return a query set searching for the query string q """
-            kwargs = { "%s__icontains" % search_field : q }
+            kwargs = { "%s__icontains" % search_field : q.strip() }
             return model.objects.filter(**kwargs).order_by(search_field)
 
         def format_item(self, obj):

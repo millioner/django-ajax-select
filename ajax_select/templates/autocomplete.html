@@ -17,11 +17,11 @@
                     formatItem: function(row) { return row[2]; },
                     formatResult: function(row) { return row[1]; },
                     dataType: "text"
-                })
+                });
                 $('#{{ html_id }}').result(function(event, data, formatted) {
                     $('#{{ html_id }}').val(data[1]);
                     $('#{{ html_id }}').trigger("added");
-                })
+                });
                 {% block extra_script %}{% endblock %}
             {% endblock %}
         });
