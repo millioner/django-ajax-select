@@ -93,7 +93,7 @@ INSTALLED_APPS = (
 )
 
 AJAX_LOOKUP_CHANNELS = {
-    'author' : {'model': 'ajax_select_example.Author', 'search_field': 'first_name'},
+    'author' : {'model': 'ajax_select_example.Author', 'search_field': 'first_name', 'auto_add': True},
     'publisher': {'model': 'ajax_select_example.Publisher', 'search_field': 'name'},
     'book': {'model': 'ajax_select_example.Book', 'search_field': 'title'},
 }

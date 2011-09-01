@@ -12,7 +12,7 @@ class Author(models.Model):
     """
     first_name = models.CharField(max_length=255, verbose_name=_('First name'))
     last_name = models.CharField(max_length=255, verbose_name=_('First name'))
-    notes = models.TextField(_('Some notes'))
+    notes = models.TextField(_('Some notes'), blank=True, null=True)
 
     class Meta:
         verbose_name = _("autor")
@@ -21,6 +21,13 @@ class Author(models.Model):
 
     def __unicode__(self):
         return '%s %s' % (self.first_name, self.last_name)
+
+    @classmethod
+    def add_form_ajax_string(cls, string):
+        words = string.split(' ')
+        obj = cls(first_name=words.pop(), last_name=words and ' '.join(words) or ' ')
+        obj.save()
+        return obj.pk
 
 class Publisher(models.Model):
     """
