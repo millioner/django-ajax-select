@@ -67,6 +67,7 @@ class AutoCompleteSelectMultipleField(forms.CharField):
         _check_can_add(self, user, model)
 
 
+
 class AutoCompleteField(forms.CharField):
     """
     Field uses an AutoCompleteWidget to lookup possible completions using a channel and stores raw text (not a foreign key)

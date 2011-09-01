@@ -6,7 +6,7 @@ from django.db import models
 from django.http import HttpResponse
 
 
-def ajax_lookup(request,channel):
+def ajax_lookup(request, channel):
     """ this view supplies results for both foreign keys and many to many fields """
 
     # it should come in as GET unless global $.ajaxSetup({type:"POST"}) has been set
@@ -35,7 +35,9 @@ def ajax_lookup(request,channel):
         resultf = lookup_channel.format_result(item)
         resultf = resultf.replace("\n", "").replace("|", "&brvbar;")
         results.append( "|".join((unicode(item.pk), itemf, resultf)) )
-    return HttpResponse("\n".join(results))
+    if lookup_channel.auto_add:
+        results.append( "|".join((u'0', query, 'Add as new item')) )
+    return HttpResponse("\n".join(results) )
 
 
 def add_popup(request,app_label,model):

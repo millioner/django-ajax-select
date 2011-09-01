@@ -131,7 +131,16 @@ class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
 
     def value_from_datadict(self, data, files, name):
         # eg. u'members': [u'|229|4688|190|']
-        return [long(val) for val in data.get(name, '').split('|') if val]
+        lookup = get_lookup(self.channel)
+        value = [val for val in data.get(name, '').split('|') if val]
+        result = []
+        for id in value:
+            if '"' in id:
+                if getattr(lookup, 'auto_add', False):
+                    result.append(lookup.model.add_form_ajax_string(id.replace('"', '')))
+            else:
+                result.append(long(id))
+        return result
 
 class AutoCompleteWidget(forms.TextInput):
     """

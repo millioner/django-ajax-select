@@ -12,6 +12,9 @@
 <input type="hidden" name="{{name}}" id="{{html_id}}" value="{{current_ids}}" />
 
 <script type="text/javascript">
+    if(typeof new_django_ajax_items_count == "undefined"){
+        var new_django_ajax_items_count = 0;
+    }
     (function(){
         var $ = null;
         if(typeof jQuery == 'function'){
@@ -23,49 +26,75 @@
         $(function(){
             {% block script %}
 
-                $("#{{html_id}}_text").autocomplete('{{lookup_url}}', {
+                var h_input = $("#{{html_id}}"),
+                    t_input = $("#{{html_id}}_text");
+
+                t_input.autocomplete('{{lookup_url}}', {
                     width: 320,
                     multiple: true,
                     multipleSeparator: ";",
                     scroll: true,
                     scrollHeight:  300,
-                    formatItem: function(row) { return row[2]; },
+                    formatItem: function(row) { return row; },
                     formatResult: function(row) { return row[1]; },
+                    highlight: function(row, term){
+                        return row[0] != "0" && $.Autocompleter.defaults.highlight(row[2], term) || row[2].bold();
+                    },
                     dataType: "text"
                 });
 
                 function receiveResult(event, data){
-                    var id = data[0];
-                    if( $("#{{html_id}}").val().indexOf( "|"+id+"|" ) == -1) {
-                        if($("#{{html_id}}").val() == '') {
-                            $("#{{html_id}}").val('|');
+                    var id = parseInt(data[0]),
+                        idv = id || '"' + data[1].replace('|', '').replace('"', '') + '"';
+                    if(h_input.val().indexOf("|" + idv + "|") == -1){
+                        if(h_input.val() == '') {
+                            h_input.val('|');
                         }
-                        $("#{{html_id}}").val( $("#{{html_id}}").val() + id + "|");
-                        addKiller_{{func_slug}}(data[1],id);
-                        $("#{{html_id}}_text").val('');
+                        h_input.val(h_input.val() + idv + "|");
+                        addKiller_{{func_slug}}(data[1], id);
+                        t_input.val('');
                         $("#{{html_id}}_on_deck").trigger("added");
                     }
                 }
 
-                $("#{{html_id}}_text").result(receiveResult);
+                t_input.result(receiveResult);
 
                 function addKiller_{{func_slug}}(repr, id){
-                    var killer_id = "kill_{{ html_id }}" + id,
-                        kill = "<span class='iconic' id='" + killer_id + "'>X</span>    ";
-                    $("#{{html_id}}_on_deck").append("<div id='{{html_id}}_on_deck_" + id +"'>" + kill + repr + " </div>");
+                    if(id){
+                        var killer_id = "kill_{{ html_id }}" + id,
+                            new_elem_id = '{{html_id}}_on_deck_' + id;
+                    } else {
+                        var killer_id = "kill_{{ html_id }}_new" + new_django_ajax_items_count,
+                            new_elem_id = '{{html_id}}_new_' + new_django_ajax_items_count;
+                        new_django_ajax_items_count ++;
+                    }
+                    var kill = '<a class="iconic" href="#" id="' + killer_id + '">X</a> ',
+                        new_elem = $('<div id="' + new_elem_id +'"><span>' + kill + repr + '</span></div>')
+                                    .appendTo("#{{html_id}}_on_deck");
+
+                    if(!id){
+                        new_elem.addClass('new_django_ajax_item');
+                    }
+
                     $("#" + killer_id).click(function(){
-                        kill_{{func_slug}}(id);
-                        // send signal to enclosing p, you may register for this event
-                        $("#{{html_id}}_on_deck").trigger("killed");
+                        if(id){
+                            h_input.val(h_input.val().replace( "|" + id + "|", "|" ));
+                        } else {
+                            h_input.val(h_input.val().replace( "|" + repr.replace('|', '') + "|", "|" ));
+                        }
+                        $("#" + new_elem_id).fadeOut().remove()
+                                // send signal to enclosing p, you may register for this event
+                                .trigger("killed");
+                        return false;
                     });
                 }
 
                 function kill_{{func_slug}}(id) {
-                    $("#{{html_id}}").val( $("#{{html_id}}").val().replace( "|" + id + "|", "|" ) );
-                    $("#{{html_id}}_on_deck_" + id).fadeOut().remove();
+
                 }
 
                 var currentRepr = {{current_reprs}};
+                console.log(currentRepr);
                 $.each(currentRepr, function(i, its){
                     addKiller_{{func_slug}}(its[0], its[1]);
                 });
