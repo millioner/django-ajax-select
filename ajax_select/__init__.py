@@ -9,6 +9,7 @@ __homepage__ = "https://github.com/millioner/django-ajax-select"
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models.query import Q
 from django.forms.models import ModelForm
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -102,7 +103,12 @@ def get_lookup(channel):
     if isinstance(lookup_label, dict):
         # 'channel' : dict(model='app.model', search_field='title' )
         # generate a simple channel dynamically
-        return make_channel(lookup_label['model'], lookup_label['search_field'], lookup_label.get('auto_add'))
+        search_fields = []
+        if 'search_field' in lookup_label:
+            search_fields.append(lookup_label['search_field'])
+        for f in lookup_label.get('search_fields', []):
+            search_fields.append(f)
+        return make_channel(lookup_label['model'], search_fields, lookup_label.get('auto_add'))
     else:
         # 'channel' : ('app.module','LookupClass')
         # from app.module load LookupClass and instantiate
@@ -111,7 +117,7 @@ def get_lookup(channel):
         return lookup_class()
 
 
-def make_channel(app_model, search_field, auto_add):
+def make_channel(app_model, search_fields, auto_add):
     """ used in get_lookup
         app_model :   app_name.model_name
         search_field :  the field to search against and to display in search results
@@ -122,15 +128,23 @@ def make_channel(app_model, search_field, auto_add):
 
     class AjaxChannel(object):
 
-        def __init__(self, model, auto_add = False):
+        def __init__(self, model, search_fields, auto_add = False):
             super(AjaxChannel, self).__init__()
             self.auto_add = auto_add and hasattr(model, 'add_form_ajax_string')
+            self.search_fields = search_fields
             self.model = model
 
         def get_query(self, q, request):
             """ return a query set searching for the query string q """
-            kwargs = { "%s__icontains" % search_field : q.strip() }
-            return self.model.objects.filter(**kwargs).order_by(search_field)
+            queryset = self.model.objects.all()
+            for word in q.strip().split(' '):
+                filter = None
+                for f in self.search_fields:
+                    phrase = Q(**{ "%s__icontains" % f : word.strip() })
+                    filter = filter and (filter | phrase) or phrase
+                queryset = queryset.filter(filter)
+
+            return queryset.order_by(self.search_fields[0])
 
         def format_item(self, obj):
             """ format item for simple list of currently selected items """
@@ -142,8 +156,8 @@ def make_channel(app_model, search_field, auto_add):
 
         def get_objects(self,ids):
             """ get the currently selected objects """
-            return self.model.objects.filter(pk__in=ids).order_by(search_field)
+            return self.model.objects.filter(pk__in=ids).order_by(self.search_fields[0])
 
-    return AjaxChannel(model, auto_add)
+    return AjaxChannel(model, search_fields, auto_add)
 
 
