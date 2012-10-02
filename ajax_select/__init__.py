@@ -76,7 +76,7 @@ def make_ajax_field(model, model_fieldname, channel, **kwargs):
         help_text = kwargs.pop('help_text')
     else:
         if isinstance(field.help_text, basestring):
-            help_text = _(field.help_text)
+            help_text = _(field.help_text or 'Enter text to search.')
         else:
             help_text = field.help_text
     if kwargs.has_key('required'):
