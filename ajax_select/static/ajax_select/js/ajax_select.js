@@ -839,11 +839,13 @@ var django = (function(django) {
         });
 
         function receiveResult(event, data) {
-            var prev = id_el.val();
+            var prev = id_el.val(),
+                id = parseInt(data[0]),
+                idv = id || '"' + data[1].replace('|', '').replace('"', '') + '"';
             if(prev) {
                 kill_val(prev);
             }
-            id_el.val(data[0]);
+            id_el.val(idv);
             text_el.val("");
             add_killer(data[1], data[0]);
             deck_el.trigger("added");
