@@ -130,7 +130,7 @@ def make_channel(app_model, search_fields, auto_add):
 
         def __init__(self, model, search_fields, auto_add = False):
             super(AjaxChannel, self).__init__()
-            self.auto_add = auto_add and hasattr(model, 'add_form_ajax_string')
+            self.auto_add = auto_add
             self.search_fields = search_fields
             self.model = model
 
@@ -157,6 +157,9 @@ def make_channel(app_model, search_fields, auto_add):
         def get_objects(self,ids):
             """ get the currently selected objects """
             return self.model.objects.filter(pk__in=ids).order_by(self.search_fields[0])
+
+        def create_from_ajax_string(self, name, request_data, form_field_name):
+            return self.model.create_from_ajax_string(name, request_data, form_field_name)
 
     return AjaxChannel(model, search_fields, auto_add)
 

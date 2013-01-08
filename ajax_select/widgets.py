@@ -62,9 +62,17 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
         )
 
     def value_from_datadict(self, data, files, name):
+        lookup = get_lookup(self.channel)
         got = data.get(name, None)
         if got:
-            return long(got)
+            if '"' in got and getattr(lookup, 'auto_add', False):
+                return lookup.create_from_ajax_string(
+                    name=got.replace('"', ''),
+                    request_data=data,
+                    form_field_name=name
+                )
+            else:
+                return long(got)
         else:
             return None
 
@@ -143,9 +151,14 @@ class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
         value = [val for val in data.get(name, '').split('|') if val]
         result = []
         for id in value:
-            if '"' in id:
-                if getattr(lookup, 'auto_add', False):
-                    result.append(lookup.model.add_form_ajax_string(id.replace('"', '')))
+            if '"' in id and getattr(lookup, 'auto_add', False):
+                result.append(
+                    lookup.create_from_ajax_string(
+                        name=id.replace('"', ''),
+                        request_data=data,
+                        form_field_name=name
+                    )
+                )
             else:
                 result.append(long(id))
         return result
