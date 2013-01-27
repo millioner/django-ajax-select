@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 class AutoCompleteSelectWidget(forms.widgets.TextInput):
     """  widget to select a model """
     class Media:
-        js = ("ajax_select/js/ajax_select.js", )
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     add_link = None
@@ -81,7 +81,7 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
 class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
     """ widget to select multiple models """
     class Media:
-        js = ("ajax_select/js/ajax_select.js", )
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     add_link = None
@@ -169,7 +169,7 @@ class AutoCompleteWidget(forms.TextInput):
     the user may also simply enter text and ignore any auto complete suggestions.
     """
     class Media:
-        js = ("ajax_select/js/ajax_select.js", )
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     channel = None
