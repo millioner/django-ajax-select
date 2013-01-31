@@ -24,7 +24,8 @@ var django = (function(django) {
             width: 320,
             formatItem: function(row) { return row[2]; },
             formatResult: function(row) { return row[1]; },
-            dataType: "text"
+            dataType: "text",
+            extraParams: { 'no_add': 1 }
         });
         el.result(function(event, data, formatted) {
             el.val(data[1]);
