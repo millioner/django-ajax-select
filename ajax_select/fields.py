@@ -18,7 +18,7 @@ class AutoCompleteSelectField(forms.fields.CharField):
         widget = kwargs.get("widget", False)
         if not widget or not isinstance(widget, AutoCompleteSelectWidget):
             kwargs["widget"] = AutoCompleteSelectWidget(channel=channel,
-                help_text=kwargs.get('help_text',_('Enter text to search.'))
+                help_text=kwargs.get('help_text', _('Enter text to search.'))
             )
         super(AutoCompleteSelectField, self).__init__(max_length=255, *args, **kwargs)
 
@@ -27,9 +27,6 @@ class AutoCompleteSelectField(forms.fields.CharField):
             lookup = get_lookup(self.channel)
             objs = lookup.get_objects([value])
             if len(objs) != 1:
-                # someone else might have deleted it while you were editing
-                # or your channel is faulty
-                # out of the scope of this field to do anything more than tell you it doesn't exist
                 raise forms.ValidationError(u"%s cannot find object: %s" % (lookup,value))
             return objs[0]
         else:
@@ -40,10 +37,15 @@ class AutoCompleteSelectField(forms.fields.CharField):
     def check_can_add(self, user, model):
         _check_can_add(self, user, model)
 
+#    def prepare_value(self, value):
+#        import pdb; pdb.set_trace()
+#        return value
+
 
 class AutoCompleteSelectMultipleField(forms.CharField):
-
-    """ form field to select multiple models for a ManyToMany db field """
+    """
+    form field to select multiple models for a ManyToMany db field
+    """
 
     channel = None
 
@@ -59,12 +61,21 @@ class AutoCompleteSelectMultipleField(forms.CharField):
         super(AutoCompleteSelectMultipleField, self).__init__(*args, **kwargs)
 
     def clean(self, value):
+#        import pdb; pdb.set_trace()
         if not value and self.required:
             raise forms.ValidationError(self.error_messages['required'])
         return value # a list of IDs from widget value_from_datadict
 
     def check_can_add(self, user, model):
         _check_can_add(self, user, model)
+
+    def prepare_value(self, value):
+#        import pdb; pdb.set_trace()
+        return value
+
+    def to_python(self, value):
+#        import pdb; pdb.set_trace()
+        return value
 
 
 

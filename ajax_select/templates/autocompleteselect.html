@@ -1,26 +1,30 @@
 {% load i18n %}
 
-<div class="autocomplete-select-wrapper" id="{{ unique_id }}">
+<div class="autocomplete-select-wrapper {{ unique_id }}">
     <input type="text" name="{{ name }}_text" id="{{ html_id }}_text" value="" {{ extra_attrs }} />
-    {% if add_link %}
-        <a href="{{ add_link }}" class="add-another" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);">
-            <img src="{{ admin_media_prefix }}img/admin/icon_addlink.gif" width="10" height="10" alt="Add Another">
-        </a>
-    {% endif %}
-    {% block help %}{% endblock %}
-    <div class="autocomplete_on_deck results_on_deck">
-        {% if current_result %}
-            <div><span class="iconic ajax-select-remove">X</span> {{ current_result|safe }}</div>
-        {% endif %}
-    </div>
-    <input type="hidden" name="{{ name }}" id="{{ html_id }}" value="{{ current_id }}" class="autocomplete_id" />
+    <div class="autocomplete_on_deck results_on_deck"></div>
 </div>
 
 <script type="text/javascript">
     {% block script %}
         (function($){
             $(function($){
-                django.init_autocomplete_select($('#{{ unique_id }}'));
+                $('.{{ unique_id }}').each(function(i, el){
+                    var wrapper = $(el),
+                        text_el = wrapper.find('.autocomplete_text'),
+                        deck_el = wrapper.find('.results_on_deck');
+
+                    if(text_el.attr('name').lastIndexOf('__prefix__') == -1){
+                        wrapper.removeClass('{{ unique_id }}');
+                        new django.autocompleteSelectSimple({
+                            text_el: text_el,
+                            deck_el: deck_el,
+                            lookup_url: "{{ lookup_url }}",
+                            default_value: {% if current_id %}[{{ current_id }}, "{{ current_result }}"]{% else %}null{% endif %},
+                            name: "{{ name }}"
+                        });
+                    }
+                });
             });
         })(jQuery || django.jQuery);
         {% block extra_script %}{% endblock %}

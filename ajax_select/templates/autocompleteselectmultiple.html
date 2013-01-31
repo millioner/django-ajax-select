@@ -1,18 +1,30 @@
 {% load i18n %}
-<div class="autocomplete-multiple-select-wrapper" id="{{ unique_id }}">
-    <input type="text" name="{{ name }}_text" id="{{html_id}}_text" value="{{current_name}}" {{ extra_attrs }} />
-    {% block help %}
-        {% if help_text %}<p class="help">{{help_text}}</p>{% endif %}
-    {% endblock %}
+<div class="autocomplete-multiple-select-wrapper {{ unique_id }}">
+    <input type="text" name="{{ name }}_text" id="{{ html_id }}_text" {{ extra_attrs }} />
+    {% if help_text %}<p class="help">{{help_text}}</p>{% endif %}
     <p class="results_on_deck"></p>
-    <input type="hidden" name="{{ name }}" id="{{html_id}}" value="{{ current_ids }}" class="autocomplete_id" />
 </div>
 
 <script type="text/javascript">
     {% block script %}
         (function($){
             $(function(){
-                django.init_multiple_autocomplete_select($('#{{ unique_id }}'), {{ current_reprs }});
+                $('.{{ unique_id }}').each(function(i, el){
+                    var wrapper = $(el),
+                        text_el = wrapper.find('.autocomplete_text'),
+                        deck_el = wrapper.find('.results_on_deck');
+
+                    if(text_el.attr('name').lastIndexOf('__prefix__') == -1){
+                        wrapper.removeClass('{{ unique_id }}');
+                        new django.autocompleteSelectMultipleSimple({
+                            text_el: text_el,
+                            deck_el: deck_el,
+                            lookup_url: "{{ lookup_url }}",
+                            default_values: {{ current_reprs }},
+                            name: "{{ name }}"
+                        });
+                    }
+                });
             });
         }(jQuery || django.jQuery));
         {% block extra_script %}{% endblock %}

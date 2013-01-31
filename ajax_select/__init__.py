@@ -158,8 +158,8 @@ def make_channel(app_model, search_fields, auto_add):
             """ get the currently selected objects """
             return self.model.objects.filter(pk__in=ids).order_by(self.search_fields[0])
 
-        def create_from_ajax_string(self, name, request_data, form_field_name):
-            return self.model.create_from_ajax_string(name, request_data, form_field_name)
+        def create_from_ajax_string(self, ajax_string, request_data, form_field_name):
+            return self.model.create_from_ajax_string(ajax_string, request_data, form_field_name)
 
     return AjaxChannel(model, search_fields, auto_add)
 
