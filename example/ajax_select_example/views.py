@@ -1,5 +1,6 @@
 ### -*- coding: utf-8 -*- ####################################################
 
+from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404, redirect
 
@@ -10,11 +11,16 @@ def main_page(request, template_name):
     context = {}
     return TemplateResponse(request, template_name, context)
 
+
+def books_list(request, queryset, template_name):
+    return TemplateResponse(request, template_name, {'object_list': queryset})
+
 def edit_book(request, template_name, object_id=None):
     object = object_id and get_object_or_404(Book, pk=object_id) or None
 
     form = BookForm(request.POST or None, instance=object)
     if form.is_valid():
-        book = form.save()
+        form.save()
+        return HttpResponseRedirect(request.get_full_path())
 
     return TemplateResponse(request, template_name, { 'form': form, 'object': object })

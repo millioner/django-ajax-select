@@ -23,11 +23,10 @@ class Author(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     @classmethod
-    def add_form_ajax_string(cls, string):
-        words = string.split(' ')
-        obj = cls(first_name=words.pop(), last_name=words and ' '.join(words) or ' ')
-        obj.save()
-        return obj.pk
+    def create_from_ajax_string(cls, ajax_string, request_data, form_field_name):
+        words = ajax_string.split(' ')
+        obj, created = cls.objects.get_or_create(first_name=words.pop(), last_name=words and ' '.join(words) or ' ')
+        return obj
 
 class Publisher(models.Model):
     """

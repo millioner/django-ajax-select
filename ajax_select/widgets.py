@@ -1,4 +1,5 @@
 ### -*- coding: utf-8 -*- ####################################################
+import random
 
 from ajax_select import get_lookup
 from django import forms
@@ -8,12 +9,13 @@ from django.forms.util import flatatt
 from django.template.defaultfilters import escapejs
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.utils.simplejson import dumps
 
 
 class AutoCompleteSelectWidget(forms.widgets.TextInput):
     """  widget to select a model """
     class Media:
-        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     add_link = None
@@ -24,8 +26,10 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
         self.help_text = help_text
 
     def render(self, name, value, attrs=None):
-
         value = value or ''
+        attrs['class'] = attrs.get('class') or ''
+        attrs['class'] += ' autocomplete_text'
+        attrs['orig_name'] = name
         final_attrs = self.build_attrs(attrs)
         self.html_id = final_attrs.pop('id', name)
 
@@ -50,7 +54,8 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
             'extra_attrs': mark_safe(flatatt(final_attrs)),
             'func_slug': self.html_id.replace("-",""),
             'add_link': self.add_link,
-            'admin_media_prefix': settings.ADMIN_MEDIA_PREFIX
+            'admin_media_prefix': settings.ADMIN_MEDIA_PREFIX,
+            'unique_id': 'autocomplete-select-%s' % random.randint(0, 99999)
         }
 
         return mark_safe(render_to_string(
@@ -58,21 +63,24 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
         )
 
     def value_from_datadict(self, data, files, name):
-        got = data.get(name, None)
-        if got:
-            return long(got)
+        lookup = get_lookup(self.channel)
+        added_val = getattr(lookup, 'auto_add', False) and data.get("%s[added]" % name, None)
+        if added_val:
+            added_obj = lookup.create_from_ajax_string(
+                ajax_string=added_val,
+                request_data=data,
+                form_field_name=name
+            )
+            return added_obj.pk
         else:
-            return None
-
+            return long(data.get(name, 0)) or None
 
 
 class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
     """ widget to select multiple models """
     class Media:
-        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
-
-    add_link = None
 
     def __init__(self, channel, help_text='', show_help_text=False, *args, **kwargs):
         super(AutoCompleteSelectMultipleWidget, self).__init__(*args, **kwargs)
@@ -81,65 +89,44 @@ class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
         self.show_help_text = show_help_text
 
     def render(self, name, value, attrs=None):
-
-        if value is None:
-            value = []
-
+        attrs['class'] = attrs.get('class') or ''
+        attrs['class'] += ' autocomplete_text'
         final_attrs = self.build_attrs(attrs)
         self.html_id = final_attrs.pop('id', name)
 
         lookup = get_lookup(self.channel)
-
-        current_name = "" # the text field starts empty
-        # eg. value = [3002L, 1194L]
-        if value:
-            current_ids = "|" + "|".join(str(pk) for pk in value) + "|" # |pk|pk| of current
-        else:
-            current_ids = "|"
-
-        objects = lookup.get_objects(value)
-
-        # text repr of currently selected items
-        current_repr_json = []
-        for obj in objects:
-            repr = lookup.format_item(obj)
-            current_repr_json.append('new Array("%s", %s)' % (escapejs(repr), obj.pk))
-
-        current_reprs = mark_safe("new Array(%s)" % ", " . join(current_repr_json))
-        if self.show_help_text:
-            help_text = self.help_text
-        else:
-            help_text = ''
-
-        context = {
-            'name': name,
-            'html_id': self.html_id,
-            'lookup_url': reverse('ajax_lookup',kwargs={'channel':self.channel}),
-            'current': value,
-            'current_name': current_name,
-            'current_ids': current_ids,
-            'current_reprs': current_reprs,
-            'help_text': help_text,
-            'extra_attrs': mark_safe(flatatt(final_attrs)),
-            'func_slug': self.html_id.replace("-",""),
-            'add_link': self.add_link,
-            'admin_media_prefix': settings.ADMIN_MEDIA_PREFIX
-        }
+        value = value or []
         return mark_safe(render_to_string(
-            ('autocompleteselectmultiple_%s.html' % self.channel, 'autocompleteselectmultiple.html'), context
+            ('autocompleteselectmultiple_%s.html' % self.channel, 'autocompleteselectmultiple.html'), {
+                'name': name,
+                'html_id': self.html_id,
+                'lookup_url': reverse('ajax_lookup', kwargs={ 'channel': self.channel }),
+                'current': value,
+                'current_reprs': mark_safe(dumps([[obj.pk, lookup.format_item(obj)] for obj in lookup.get_objects(value)])),
+                'help_text': self.help_text if self.show_help_text else '',
+                'extra_attrs': mark_safe(flatatt(final_attrs)),
+                'func_slug': self.html_id.replace("-",""),
+                'admin_media_prefix': settings.ADMIN_MEDIA_PREFIX,
+                'unique_id': 'autocomplete-select-%s' % random.randint(0, 99999)
+            }
         ))
 
     def value_from_datadict(self, data, files, name):
-        # eg. u'members': [u'|229|4688|190|']
         lookup = get_lookup(self.channel)
-        value = [val for val in data.get(name, '').split('|') if val]
         result = []
-        for id in value:
-            if '"' in id:
-                if getattr(lookup, 'auto_add', False):
-                    result.append(lookup.model.add_form_ajax_string(id.replace('"', '')))
-            else:
-                result.append(long(id))
+
+        added_vals = getattr(lookup, 'auto_add', False) and data.getlist("%s[added]" % name, [])
+        if added_vals:
+            for added_val in added_vals:
+                added_obj = lookup.create_from_ajax_string(
+                    ajax_string=added_val,
+                    request_data=data,
+                    form_field_name=name
+                )
+            result.append(added_obj.pk)
+
+        for id in data.getlist(name, []):
+            result.append(long(id or 0) or None)
         return result
 
 class AutoCompleteWidget(forms.TextInput):
@@ -148,7 +135,7 @@ class AutoCompleteWidget(forms.TextInput):
     the user may also simply enter text and ignore any auto complete suggestions.
     """
     class Media:
-        js = ("ajax_select/js/jquery.autocomplete.js", "ajax_select/js/ajax_select.js")
+        js = ("ajax_select/js/simple_widget.js", "ajax_select/js/jquery.autocomplete.js" )
         css = {"all": ("ajax_select/css/ajax-selects.css", "ajax_select/css/autocomplete.css")}
 
     channel = None
@@ -162,18 +149,17 @@ class AutoCompleteWidget(forms.TextInput):
 
     def render(self, name, value, attrs=None):
         value = value or ''
+        attrs['class'] = attrs.get('class') or ''
+        attrs['class'] += ' ajax_select_autocomplete'
+        attrs['data-lookup_url'] = reverse('ajax_lookup', args=[self.channel])
         final_attrs = self.build_attrs(attrs)
-        self.html_id = final_attrs.pop('id', name)
 
         context = {
             'current_name': value,
-            'current_id': value,
             'help_text': self.help_text,
-            'html_id': self.html_id,
-            'lookup_url': reverse('ajax_lookup', args=[self.channel]),
             'name': name,
             'extra_attrs': mark_safe(flatatt(final_attrs)),
-            'func_slug': self.html_id.replace("-", "")
+            'unique_id': 'autocomplete-select-%s' % random.randint(0, 99999)
         }
 
         templates = ('autocomplete_%s.html' % self.channel, 'autocomplete.html')

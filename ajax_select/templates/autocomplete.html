@@ -1,29 +1,15 @@
 {% load i18n %}
-<input type="text" name="{{ name }}" id="{{ html_id }}" value="{{ current_name }}" {{ extra_attrs }} />
-{% block help %}{% endblock %}
+<div id="{{ unique_id }}">
+    <input type="text" name="{{ name }}" value="{{ current_name }}" {{ extra_attrs }} />
+    {% block help %}{{ help_text }}{% endblock %}
+</div>
 <script type="text/javascript">
-    (function(){
-        var $ = null;
-        if(typeof jQuery == 'function'){
-            $ = jQuery;
-        } else if(typeof django == 'object' && typeof django.jQuery == 'function'){
-            $ = django.jQuery;
-        }
-
+    {% block script %}
+    (function($){
         $(function(){
-            {% block script %}
-                $('#{{ html_id }}').autocomplete('{{ lookup_url }}', {
-                    width: 320,
-                    formatItem: function(row) { return row[2]; },
-                    formatResult: function(row) { return row[1]; },
-                    dataType: "text"
-                });
-                $('#{{ html_id }}').result(function(event, data, formatted) {
-                    $('#{{ html_id }}').val(data[1]);
-                    $('#{{ html_id }}').trigger("added");
-                });
-                {% block extra_script %}{% endblock %}
-            {% endblock %}
+            django.init_autocomplete($('#{{ unique_id }}').find('.ajax_select_autocomplete'));
         });
-    }());
+    }(jQuery || django.jQuery));
+    {% block extra_script %}{% endblock %}
+    {% endblock %}
 </script>

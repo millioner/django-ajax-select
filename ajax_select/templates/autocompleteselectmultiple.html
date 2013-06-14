@@ -1,109 +1,32 @@
 {% load i18n %}
-<input type="text" name="{{name}}_text" id="{{html_id}}_text" value="{{current_name}}" {{ extra_attrs }} />
-{% if add_link %}
-    <a href="{{ add_link }}" class="add-another" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);">
-        <img src="{{ admin_media_prefix }}img/admin/icon_addlink.gif" width="10" height="10" alt="Add Another" />
-    </a>
-{% endif %}
-{% block help %}
+<div class="autocomplete-multiple-select-wrapper {{ unique_id }}">
+    <input type="text" name="{{ name }}_text" id="{{ html_id }}_text" {{ extra_attrs }} />
     {% if help_text %}<p class="help">{{help_text}}</p>{% endif %}
-{% endblock %}
-<p id="{{html_id}}_on_deck" class="results_on_deck"></p>
-<input type="hidden" name="{{name}}" id="{{html_id}}" value="{{current_ids}}" />
+    <p class="results_on_deck"></p>
+</div>
 
 <script type="text/javascript">
-    if(typeof new_django_ajax_items_count == "undefined"){
-        var new_django_ajax_items_count = 0;
-    }
-    (function(){
-        var $ = null;
-        if(typeof jQuery == 'function'){
-            $ = jQuery;
-        } else if(typeof django == 'object' && typeof django.jQuery == 'function'){
-            $ = django.jQuery;
-        }
+    {% block script %}
+        (function($){
+            $(function(){
+                $('.{{ unique_id }}').each(function(i, el){
+                    var wrapper = $(el),
+                        text_el = wrapper.find('.autocomplete_text'),
+                        deck_el = wrapper.find('.results_on_deck');
 
-        $(function(){
-            {% block script %}
-
-                var h_input = $("#{{html_id}}"),
-                    t_input = $("#{{html_id}}_text");
-
-                t_input.autocomplete('{{lookup_url}}', {
-                    width: 320,
-                    multiple: true,
-                    multipleSeparator: ";",
-                    scroll: true,
-                    scrollHeight:  300,
-                    formatItem: function(row) { return row; },
-                    formatResult: function(row) { return row[1]; },
-                    highlight: function(row, term){
-                        return row[0] != "0" && $.Autocompleter.defaults.highlight(row[2], term) || row[2].bold();
-                    },
-                    dataType: "text"
-                });
-
-                function receiveResult(event, data){
-                    var id = parseInt(data[0]),
-                        idv = id || '"' + data[1].replace('|', '').replace('"', '') + '"';
-                    if(h_input.val().indexOf("|" + idv + "|") == -1){
-                        if(h_input.val() == '') {
-                            h_input.val('|');
-                        }
-                        h_input.val(h_input.val() + idv + "|");
-                        addKiller_{{func_slug}}(data[1], id);
-                        t_input.val('');
-                        $("#{{html_id}}_on_deck").trigger("added");
+                    if(text_el.attr('name').lastIndexOf('__prefix__') == -1){
+                        wrapper.removeClass('{{ unique_id }}');
+                        new django.autocompleteSelectMultipleSimple({
+                            text_el: text_el,
+                            deck_el: deck_el,
+                            lookup_url: "{{ lookup_url }}",
+                            default_values: {{ current_reprs }},
+                            name: "{{ name }}"
+                        });
                     }
-                }
-
-                t_input.result(receiveResult);
-
-                function addKiller_{{func_slug}}(repr, id){
-                    if(id){
-                        var killer_id = "kill_{{ html_id }}" + id,
-                            new_elem_id = '{{html_id}}_on_deck_' + id;
-                    } else {
-                        var killer_id = "kill_{{ html_id }}_new" + new_django_ajax_items_count,
-                            new_elem_id = '{{html_id}}_new_' + new_django_ajax_items_count;
-                        new_django_ajax_items_count ++;
-                    }
-                    var kill = '<a class="iconic" href="#" id="' + killer_id + '">X</a> ',
-                        new_elem = $('<div id="' + new_elem_id +'"><span>' + kill + repr + '</span></div>')
-                                    .appendTo("#{{html_id}}_on_deck");
-
-                    if(!id){
-                        new_elem.addClass('new_django_ajax_item');
-                    }
-
-                    $("#" + killer_id).click(function(){
-                        if(id){
-                            h_input.val(h_input.val().replace( "|" + id + "|", "|" ));
-                        } else {
-                            h_input.val(h_input.val().replace( "|" + repr.replace('|', '') + "|", "|" ));
-                        }
-                        $("#" + new_elem_id).fadeOut().remove()
-                                // send signal to enclosing p, you may register for this event
-                                .trigger("killed");
-                        return false;
-                    });
-                }
-
-                function kill_{{func_slug}}(id) {
-
-                }
-
-                var currentRepr = {{current_reprs}};
-                console.log(currentRepr);
-                $.each(currentRepr, function(i, its){
-                    addKiller_{{func_slug}}(its[0], its[1]);
                 });
-
-                $("#{{html_id}}").bind('didAddPopup', function(event, id, repr) {
-                    receiveResult(null, [id, repr]);
-                });
-                {% block extra_script %}{% endblock %}
-            {% endblock %}
-        });
-    }());
+            });
+        }(jQuery || django.jQuery));
+        {% block extra_script %}{% endblock %}
+    {% endblock %}
 </script>
