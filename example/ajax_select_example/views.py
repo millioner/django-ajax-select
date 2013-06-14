@@ -11,6 +11,10 @@ def main_page(request, template_name):
     context = {}
     return TemplateResponse(request, template_name, context)
 
+
+def books_list(request, queryset, template_name):
+    return TemplateResponse(request, template_name, {'object_list': queryset})
+
 def edit_book(request, template_name, object_id=None):
     object = object_id and get_object_or_404(Book, pk=object_id) or None
 

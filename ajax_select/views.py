@@ -3,6 +3,7 @@
 from django.db import models
 from django.http import HttpResponse
 from django.utils.translation import ugettext
+from django.utils.encoding import smart_unicode
 from django.contrib.admin import site
 
 from ajax_select import get_lookup
@@ -11,8 +12,7 @@ def ajax_lookup(request, channel):
     """ this view supplies results for both foreign keys and many to many fields """
     if 'q' not in request.REQUEST:
         return HttpResponse('') # suspicious
-    query = request.REQUEST['q']
-
+    query = smart_unicode(request.REQUEST['q'])
     lookup_channel = get_lookup(channel)
     
     if query:
@@ -30,7 +30,7 @@ def ajax_lookup(request, channel):
 
     if lookup_channel.auto_add and 'no_add' not in request.REQUEST:
         results.append("|".join((u'0', query, ugettext('Add as new item'))))
-    return HttpResponse("\n".join(results) )
+    return HttpResponse("\n".join(results))
 
 
 def add_popup(request,app_label,model):
